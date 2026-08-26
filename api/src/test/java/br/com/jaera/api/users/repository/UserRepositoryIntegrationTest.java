@@ -150,3 +150,4 @@ class UserRepositoryIntegrationTest {
         assertFalse(userRepository.existsByEmail("ghost@example.com"));
     }
 }
+
