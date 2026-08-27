@@ -1,3 +1,5 @@
 spring:
   application:
-    name: api
+    name: jaera-api
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
