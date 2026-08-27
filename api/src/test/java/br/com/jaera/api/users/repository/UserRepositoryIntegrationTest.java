@@ -77,9 +77,8 @@ class UserRepositoryIntegrationTest {
         User updated = userRepository.save(saved);
 
         assertNotNull(updated.getUpdatedAt());
-        assertTrue(updated.getUpdatedAt().isAfter(originalUpdatedAt)
-                        || updated.getUpdatedAt().equals(originalUpdatedAt),
-                "updatedAt should be equal to or after the original");
+        assertTrue(updated.getUpdatedAt().isAfter(originalUpdatedAt),
+                "updatedAt should be after the original");
         assertEquals(saved.getCreatedAt(), updated.getCreatedAt(),
                 "createdAt should not change on update");
     }
