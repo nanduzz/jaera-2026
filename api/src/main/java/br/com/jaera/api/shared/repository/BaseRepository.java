@@ -1,5 +1,6 @@
 package br.com.jaera.api.shared.repository;
 
+import br.com.jaera.api.shared.domain.BaseEntity;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -12,8 +13,8 @@ import org.springframework.data.repository.NoRepositoryBean;
  * <p>Domain repositories should extend this interface and add domain-specific
  * query methods via Spring Data derived queries or {@code @Query} annotations.</p>
  *
- * @param <T> the aggregate root type, must extend {@link br.com.jaera.api.shared.domain.BaseEntity}
+ * @param <T> the aggregate root type, must extend {@link BaseEntity}
  */
 @NoRepositoryBean
-public interface BaseRepository<T> extends ListCrudRepository<T, Long> {
+public interface BaseRepository<T extends BaseEntity> extends ListCrudRepository<T, Long> {
 }
