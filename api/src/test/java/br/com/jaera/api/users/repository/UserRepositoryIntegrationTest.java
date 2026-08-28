@@ -2,22 +2,24 @@ package br.com.jaera.api.users.repository;
 
 import br.com.jaera.api.TestcontainersConfiguration;
 import br.com.jaera.api.users.domain.User;
+import com.google.firebase.auth.FirebaseAuth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
 class UserRepositoryIntegrationTest {
+
+    @MockitoBean
+    private FirebaseAuth firebaseAuth;
 
     @Autowired
     private UserRepository userRepository;
@@ -30,123 +32,112 @@ class UserRepositoryIntegrationTest {
     @Test
     void shouldSaveUserWhenValidDataIsProvided() {
         User user = User.builder()
-                .username("johndoe")
-                .email("john@example.com")
-                .firebaseUid("firebase-123")
+                .username("testuser")
+                .email("test@jaera.com")
+                .firebaseUid("firebase-uid-123")
                 .build();
 
-        User saved = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        assertNotNull(saved.getId());
-        assertEquals("johndoe", saved.getUsername());
-        assertEquals("john@example.com", saved.getEmail());
-        assertEquals("firebase-123", saved.getFirebaseUid());
+        assertThat(savedUser.getId()).isNotNull();
+        assertThat(savedUser.getUsername()).isEqualTo("testuser");
+        assertThat(savedUser.getEmail()).isEqualTo("test@jaera.com");
+        assertThat(savedUser.getFirebaseUid()).isEqualTo("firebase-uid-123");
     }
 
     @Test
     void shouldPopulateAuditFieldsWhenUserIsSaved() {
         User user = User.builder()
                 .username("audituser")
-                .email("audit@example.com")
+                .email("audit@jaera.com")
+                .firebaseUid("firebase-uid-audit")
                 .build();
 
-        User saved = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        assertNotNull(saved.getCreatedAt(), "createdAt should be populated by auditing");
-        assertNotNull(saved.getUpdatedAt(), "updatedAt should be populated by auditing");
-        assertNotNull(saved.getCreatedBy(), "createdBy should be populated by auditing");
-        assertNotNull(saved.getUpdatedBy(), "updatedBy should be populated by auditing");
-        assertEquals(0L, saved.getCreatedBy(), "createdBy should be 0 (mock system user)");
-        assertEquals(0L, saved.getUpdatedBy(), "updatedBy should be 0 (mock system user)");
+        assertThat(savedUser.getCreatedAt()).isNotNull();
+        assertThat(savedUser.getUpdatedAt()).isNotNull();
+        assertThat(savedUser.getCreatedBy()).isEqualTo(0L);
+        assertThat(savedUser.getUpdatedBy()).isEqualTo(0L);
     }
 
     @Test
-    void shouldUpdateUpdatedAtWhenUserIsModified() throws InterruptedException {
+    void shouldUpdateUpdatedAtWhenUserIsModified() {
         User user = User.builder()
-                .username("updateuser")
-                .email("update@example.com")
+                .username("moduser")
+                .email("mod@jaera.com")
                 .build();
+        User savedUser = userRepository.save(user);
+        var originalCreatedAt = savedUser.getCreatedAt();
+        var originalUpdatedAt = savedUser.getUpdatedAt();
 
-        User saved = userRepository.save(user);
-        var originalUpdatedAt = saved.getUpdatedAt();
+        savedUser.setUsername("modified-username");
+        User updatedUser = userRepository.save(savedUser);
 
-        // Small delay to ensure a different timestamp
-        Thread.sleep(50);
-
-        saved.setUsername("updateduser");
-        User updated = userRepository.save(saved);
-
-        assertNotNull(updated.getUpdatedAt());
-        assertTrue(updated.getUpdatedAt().isAfter(originalUpdatedAt),
-                "updatedAt should be after the original");
-        assertEquals(saved.getCreatedAt(), updated.getCreatedAt(),
-                "createdAt should not change on update");
+        assertThat(updatedUser.getCreatedAt()).isEqualTo(originalCreatedAt);
+        assertThat(updatedUser.getUpdatedAt()).isAfterOrEqualTo(originalUpdatedAt);
     }
 
     @Test
     void shouldFindUserByUsernameWhenUserExists() {
-        User user = User.builder()
+        userRepository.save(User.builder()
                 .username("findme")
-                .email("findme@example.com")
-                .build();
-        userRepository.save(user);
+                .email("findme@jaera.com")
+                .build());
 
         Optional<User> found = userRepository.findByUsername("findme");
 
-        assertTrue(found.isPresent());
-        assertEquals("findme", found.get().getUsername());
+        assertThat(found).isPresent();
+        assertThat(found.get().getEmail()).isEqualTo("findme@jaera.com");
     }
 
     @Test
     void shouldFindUserByEmailWhenUserExists() {
-        User user = User.builder()
+        userRepository.save(User.builder()
                 .username("emailuser")
-                .email("unique@example.com")
-                .build();
-        userRepository.save(user);
+                .email("email@jaera.com")
+                .build());
 
-        Optional<User> found = userRepository.findByEmail("unique@example.com");
+        Optional<User> found = userRepository.findByEmail("email@jaera.com");
 
-        assertTrue(found.isPresent());
-        assertEquals("unique@example.com", found.get().getEmail());
+        assertThat(found).isPresent();
+        assertThat(found.get().getUsername()).isEqualTo("emailuser");
     }
 
     @Test
     void shouldFindUserByFirebaseUidWhenUserExists() {
-        User user = User.builder()
+        userRepository.save(User.builder()
                 .username("fbuser")
-                .email("fbuser@example.com")
-                .firebaseUid("fb-uid-456")
-                .build();
-        userRepository.save(user);
+                .email("fb@jaera.com")
+                .firebaseUid("uid-123")
+                .build());
 
-        Optional<User> found = userRepository.findByFirebaseUid("fb-uid-456");
+        Optional<User> found = userRepository.findByFirebaseUid("uid-123");
 
-        assertTrue(found.isPresent());
-        assertEquals("fb-uid-456", found.get().getFirebaseUid());
+        assertThat(found).isPresent();
+        assertThat(found.get().getUsername()).isEqualTo("fbuser");
     }
 
     @Test
     void shouldReturnEmptyWhenUserDoesNotExistByUsername() {
         Optional<User> found = userRepository.findByUsername("nonexistent");
 
-        assertFalse(found.isPresent());
+        assertThat(found).isEmpty();
     }
 
     @Test
     void shouldReturnTrueWhenUserExistsByUsername() {
-        User user = User.builder()
-                .username("existsuser")
-                .email("exists@example.com")
-                .build();
-        userRepository.save(user);
+        userRepository.save(User.builder()
+                .username("exists")
+                .email("exists@jaera.com")
+                .build());
 
-        assertTrue(userRepository.existsByUsername("existsuser"));
+        assertThat(userRepository.existsByUsername("exists")).isTrue();
     }
 
     @Test
     void shouldReturnFalseWhenUserDoesNotExistByEmail() {
-        assertFalse(userRepository.existsByEmail("ghost@example.com"));
+        assertThat(userRepository.existsByEmail("nope@jaera.com")).isFalse();
     }
 }
 

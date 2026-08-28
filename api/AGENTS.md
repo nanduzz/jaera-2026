@@ -79,4 +79,14 @@ This project strictly follows a GitFlow-inspired branching model. As an AI Agent
   - **NO DIRECT COMMITS:** You are STRICTLY FORBIDDEN from committing code directly to `develop`, `release`, `hotfix`, or `main`.
   - **PULL REQUESTS ONLY:** All code must enter the protected branches exclusively via Pull Requests (PRs).
   - **NO UNAUTHORIZED MERGES:** You MUST NOT merge any Pull Request into `develop`, `release`, or `hotfix` UNLESS the developer explicitly commands you to do so (e.g., "You can merge this PR now"). 
-  - **Workflow:** When you finish a task, leave a commit ready to add the changes to the `feat/` branch, if possible create a temp file with the suggested commit message, and instructions for the developer to create a commit and PR. Wait for the developer to review and merge it.
+   - **Workflow:** When you finish a task, leave a commit ready to add the changes to the `feat/` branch, if possible create a temp file with the suggested commit message, and instructions for the developer to create a commit and PR. Wait for the developer to review and merge it.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues in `nanduzz/jaera-2026` (use the `gh` CLI or `gh` MCP tools). See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` at the repo root plus `docs/adr/` for architectural decisions.

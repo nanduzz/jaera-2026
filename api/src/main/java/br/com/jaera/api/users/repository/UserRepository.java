@@ -5,12 +5,6 @@ import br.com.jaera.api.users.domain.User;
 
 import java.util.Optional;
 
-/**
- * Repository for the {@link User} aggregate.
- *
- * <p>Inherits standard CRUD operations from {@link BaseRepository} and adds
- * domain-specific query methods for user lookup by unique fields.</p>
- */
 public interface UserRepository extends BaseRepository<User> {
 
     Optional<User> findByUsername(String username);

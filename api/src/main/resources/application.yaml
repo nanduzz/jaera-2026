@@ -3,3 +3,9 @@ spring:
     name: jaera-api
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  messages:
+    basename: messages
+
+jaera:
+  firebase:
+    project-id: ${FIREBASE_PROJECT_ID:demo-no-project}

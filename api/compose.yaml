@@ -7,3 +7,50 @@ services:
       - 'POSTGRES_USER=jaera'
     ports:
       - '5432:5432'
+  
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack-pro # required for Pro
+    ports:
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
+      - "127.0.0.1:443:443" # LocalStack HTTPS Gateway (Pro)
+    environment:
+      # Activate LocalStack for AWS: https://docs.localstack.cloud/getting-started/auth-token/
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN:-fake} # required for Pro
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - SERVICES=s3,cloudfront
+      - DEBUG=0
+      - PERSISTENCE=${PERSISTENCE:-1}
+      - DATA_DIR=/tmp/localstack/data
+      - LOCALSTACK_HOSTNAME_EXTERNAL=localhost
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
+      - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./docker/localstack/init:/etc/localstack/init/ready.d" # <--- Add this line
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:4566/_localstack/health || exit 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  firebase-emulator:
+    image: firebase-emulator:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.firebase
+    container_name: firebase-emulator
+    ports:
+      - "9099:9099"
+      - "4000:4000"
+      # - "9199:9199" - For Firestore Emulator (if needed)
+      # - "8080:8080" - For Realtime Database Emulator (if needed)
+    environment:
+      - FIREBASE_AUTH_EMULATOR_HOST=localhost:9099

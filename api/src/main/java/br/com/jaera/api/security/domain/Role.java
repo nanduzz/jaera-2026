@@ -1,11 +1,11 @@
-package br.com.jaera.api.users.domain;
+package br.com.jaera.api.security.domain;
 
-import br.com.jaera.api.shared.domain.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
@@ -13,10 +13,10 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table("users")
-public class User extends BaseEntity {
+@Table("roles")
+public class Role {
 
-    private String username;
-    private String email;
-    private String firebaseUid;
+    @Id
+    private Long id;
+    private String name;
 }

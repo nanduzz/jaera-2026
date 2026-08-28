@@ -1,0 +1,22 @@
+As per the AGENTS.md workflow, the auth-design feature implementation is complete and thoroughly tested. All unit and integration tests are passing using Testcontainers!
+
+Since I am restricted from committing directly to protected branches, I have left the code in your current `feat/auth-firebase-integration` branch. 
+
+You can stage and commit the changes using the following suggested commit message:
+
+```
+feat: implement firebase auth integration and core persistence
+
+- Add Firebase Admin SDK dependency for token verification
+- Create Spring Data JDBC base entities and repositories with auditing
+- Implement Liquibase migrations for users, roles, and user_roles
+- Configure Firebase properties and custom token filter for authentication
+- Auto-provision users in DB upon valid Firebase token verification
+- Handle auth errors with custom EntryPoint and AccessDeniedHandler
+- Add i18n support for localized error messages
+- Add comprehensive integration tests for repositories and security context using Testcontainers and MockitoBeans
+- Configure Spring RestDocs to generate API documentation snippets
+```
+
+Next step:
+Please review the changes, commit them to your feature branch, and open a Pull Request against `develop`. Let me know if you need any adjustments or if I should help with the PR!
