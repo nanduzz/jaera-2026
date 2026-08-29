@@ -9,3 +9,6 @@ spring:
 jaera:
   firebase:
     project-id: ${FIREBASE_PROJECT_ID:demo-no-project}
+    emulator-enabled: ${FIREBASE_EMULATOR_ENABLED:true}
+    emulator-host: ${FIREBASE_AUTH_EMULATOR_HOST:localhost:9099}
+    credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:}
